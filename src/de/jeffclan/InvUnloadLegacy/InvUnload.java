@@ -40,7 +40,7 @@ public class InvUnload extends JavaPlugin implements CommandExecutor , Listener 
 			Inventory inv = ((Chest) block.getState()).getInventory();
 
 			for (ItemStack itemStack : inv.getContents()) {
-				if (itemStack == null || itemStack.getAmount() == 0 || itemStack.getTypeId()==0) {
+				if (itemStack == null || itemStack.getAmount() == 0 || itemStack.getType().equals(Material.AIR)) {
 					freeSlots++;
 				}
 			}
@@ -57,14 +57,14 @@ public class InvUnload extends JavaPlugin implements CommandExecutor , Listener 
 		}
 	}
 
-	public static List<Integer> getInventoryContents(Inventory inventory) {
+	public static List<String> getInventoryContents(Inventory inventory) {
 
-		List<Integer> contents = new ArrayList<Integer>();
+		List<String> contents = new ArrayList<String>();
 		for (ItemStack itemStack : inventory.getContents()) {
 			if (isItemStackEmpty(itemStack))
 				continue;
-			if (!contents.contains(itemStack.getTypeId())) {
-				contents.add(itemStack.getTypeId());
+			if (!contents.contains(itemStack.getTypeId()+","+itemStack.getDurability())) {
+				contents.add(itemStack.getTypeId()+","+itemStack.getDurability());
 			}
 		}
 
@@ -90,7 +90,7 @@ public class InvUnload extends JavaPlugin implements CommandExecutor , Listener 
 			return true;
 		if (itemStack.getAmount() == 0)
 			return true;
-		if (itemStack.getTypeId() == 0)
+		if (itemStack.getType() == Material.AIR)
 			return true;
 		return false;
 	}
@@ -393,10 +393,11 @@ public class InvUnload extends JavaPlugin implements CommandExecutor , Listener 
 					continue;
 
 				// only continue if the inventory already contains what we want to store
-				if (getInventoryContents(chestInventory).contains(itemStack.getTypeId())) {
+				if (getInventoryContents(chestInventory).contains(itemStack.getTypeId()+","+itemStack.getDurability())) {
 
 					playerInventory.remove(itemStack);
 
+					// try to add it to the chest
 					HashMap<Integer, ItemStack> unstorableItemStacks = chestInventory.addItem(itemStack);
 
 					if (unstorableItemStacks.size() == 0
@@ -419,7 +420,11 @@ public class InvUnload extends JavaPlugin implements CommandExecutor , Listener 
 						}
 					}
 
+					// give the player all items back that could not be stored because chest is full
 					for (ItemStack unstorableItemStack : unstorableItemStacks.values()) {
+						// System.out.println(" could not store " + unstorableItemStack.getAmount() + "x
+						// "
+						// + unstorableItemStack.getType().name());
 						playerInventory.addItem(unstorableItemStack);
 					}
 				}

@@ -1,7 +1,6 @@
 main: de.jeffclan.InvUnloadLegacy.InvUnload
 name: InvUnload
 version: 1.0.4Legacy
-api-version: 1.13
 description: Unloads inventory in nearby matching chests
 author: mfnalex
 prefix: InvUnload
